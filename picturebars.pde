@@ -1,14 +1,41 @@
 
 void keyPressed() {
   // Learnt this trick from @blprnt, save a screen shot when 's' key is pressed.
-   if (key == 's') 
-    save( "screen_shots/" + 
-      year() + "_" +
-      month() + "_" +
-      day() + "_" +
-      hour() + "_" +
-      minute() + "_" +
-      second() + ".png"); 
+	String output_file = "screen_shots/" + 
+				year() + "_" +
+				month() + "_" +
+				day() + "_" +
+				hour() + "_" +
+				minute() + "_" +
+				second() + ".png";
+
+	if (key == 's') save(output_file); 
+
+	// To save the image with the black background marked as tansparent
+	// Does not work well with anti-aliasing turned on
+	if (key == 'S') {
+		PGraphics frameToSave = createGraphics(width, height, P2D);
+		colorMode(HSB);
+		frameToSave.beginDraw();
+		loadPixels();
+		frameToSave.loadPixels();
+		float h,s,b;
+		for (int i=0; i<pixels.length; i++){
+			h=hue(pixels[i]);
+			s=saturation(pixels[i]);
+			b=brightness(pixels[i]);
+			if (b>0) frameToSave.pixels[i]=color(h,s,b,255);
+			else frameToSave.pixels[i]=color(h,s,b,0);
+			// re-use the brightness value as the alpha --
+			// (since the pixel array, strictly speaking,
+			// does not contain alpha values (whoops.)
+			// in this example, if the brightness is 0,
+			// use 0 alpha, otherwise use full alpha.
+		}
+		frameToSave.updatePixels();
+		frameToSave.endDraw();
+		frameToSave.save(output_file);
+	}
 }
 
 PImage[] logos;
@@ -34,7 +61,7 @@ int users[] = {
 float total_users = 37 + 243 + 114 + 47;
 
 void setup() {
-	size(1233, 800, P2D);
+	size(2000, 800, P2D);
 	smooth();
 
 	logos = new PImage[4];
@@ -54,8 +81,33 @@ void setup() {
 		user_percent[ii] = users[ii] / total_users;
 	}
 
-	PictureBar p = new PictureBar(width, height, logos, user_percent);
-	p.draw();
+	PictureBar p = new PictureBar(
+				width / 3,
+				height / 2 - 100,
+				logos, 
+				user_percent);
+
+	int icons_per_level = 3;
+
+	stroke(255);
+	line(0, height / 2, width, height / 2);
+
+	for(int x = 0; x < width; x += width / 3) {
+		p.set_columns(icons_per_level);
+		icons_per_level += 2;
+
+		p.set_init_x(x);
+		p.set_init_y(50);
+		p.set_bottom_to_top();
+		p.draw();
+
+		p.set_init_x(x);
+		p.set_init_y(height / 2 + 50);
+		p.set_top_to_bottom();
+		p.draw();
+
+		line(x, 0, x, height);
+	}
 }
 
 void draw() {

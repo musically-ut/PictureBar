@@ -71,7 +71,7 @@ class PictureBar {
 	 * resized accordingly
 	 * @param n Number of icons to put in one row
 	 */
-	void set_row_images(int n) {
+	void set_columns(int n) {
 		images_in_level = n;
 	}
 
@@ -96,7 +96,7 @@ class PictureBar {
 
 		int num_bars = logos.length;
 
-		float bar_width = (width * 1.0 / num_bars) - bar_dist;
+		float bar_width = (width_ * 1.0 / num_bars) - bar_dist;
 		float icon_size = bar_width / images_in_level;
 		float each_icon_percent = 0.0;
 
